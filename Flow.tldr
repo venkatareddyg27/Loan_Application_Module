@@ -1,0 +1,2199 @@
+{
+  "tldrawFileFormatVersion": 1,
+  "schema": {
+    "schemaVersion": 2,
+    "sequences": {
+      "com.tldraw.store": 4,
+      "com.tldraw.asset.bookmark": 1,
+      "com.tldraw.asset.image": 5,
+      "com.tldraw.asset.video": 5,
+      "com.tldraw.camera": 1,
+      "com.tldraw.document": 2,
+      "com.tldraw.instance": 25,
+      "com.tldraw.instance_page_state": 5,
+      "com.tldraw.page": 1,
+      "com.tldraw.instance_presence": 6,
+      "com.tldraw.pointer": 1,
+      "com.tldraw.shape": 4,
+      "com.tldraw.shape.arrow": 5,
+      "com.tldraw.shape.bookmark": 2,
+      "com.tldraw.shape.draw": 2,
+      "com.tldraw.shape.embed": 4,
+      "com.tldraw.shape.frame": 0,
+      "com.tldraw.shape.geo": 9,
+      "com.tldraw.shape.group": 0,
+      "com.tldraw.shape.highlight": 0,
+      "com.tldraw.shape.image": 4,
+      "com.tldraw.shape.line": 4,
+      "com.tldraw.shape.note": 8,
+      "com.tldraw.shape.text": 1,
+      "com.tldraw.shape.video": 2
+    }
+  },
+  "records": [
+    {
+      "typeName": "page",
+      "id": "page:page",
+      "name": "Loan API Flow",
+      "index": "a1",
+      "meta": {}
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:9fc8a043",
+      "type": "text",
+      "x": 60,
+      "y": 40,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "text": "Loan Application API \u2014 Complete Flow",
+        "color": "violet",
+        "size": "xl",
+        "font": "sans",
+        "align": "middle",
+        "w": 680,
+        "autoSize": false,
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a1"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:0f42079a",
+      "type": "geo",
+      "x": 60,
+      "y": 110,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  ELIGIBILITY CHECK",
+        "color": "violet",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "violet"
+      },
+      "parentId": "page:page",
+      "index": "a2"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:c44d743d",
+      "type": "geo",
+      "x": 60,
+      "y": 166,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 74,
+        "text": "1.  POST  /loan/eligibility/check\n     body: { user_profile_id, credit_score }\n     \u2190 { eligibility_id, status: ELIGIBLE/REJECTED, max_amount }\n     \u2717  credit_score < 650  \u2192  REJECTED",
+        "color": "green",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a3"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:92548384",
+      "type": "geo",
+      "x": 60,
+      "y": 264,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  APPLICATION",
+        "color": "blue",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "blue"
+      },
+      "parentId": "page:page",
+      "index": "a4"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:c962de47",
+      "type": "geo",
+      "x": 60,
+      "y": 320,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 74,
+        "text": "2.  POST  /loan/application/apply\n     body: { user_profile_id, eligibility_id, tenure_months }\n     \u2190 { application_id, approved_amount, next_step: \"PURPOSE\" }\n     approved_amount  \u2190  from eligibility record (not user input)",
+        "color": "blue",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a5"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:6575825e",
+      "type": "geo",
+      "x": 60,
+      "y": 418,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  STEP 1 \u00b7 PURPOSE",
+        "color": "orange",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "orange"
+      },
+      "parentId": "page:page",
+      "index": "a6"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:4f444e72",
+      "type": "geo",
+      "x": 60,
+      "y": 474,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 74,
+        "text": "3.  PUT   /loan/application/{id}/purpose     \u26a0 form-data (NOT JSON)\n     purpose_code:  MEDICAL | EDUCATION | EMERGENCY | PERSONAL\n     purpose_description: free text\n     \u2190 { purpose_code, purpose_description }",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a7"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:342c252f",
+      "type": "geo",
+      "x": 60,
+      "y": 572,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  STEP 2 \u00b7 REFERENCES",
+        "color": "orange",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "orange"
+      },
+      "parentId": "page:page",
+      "index": "a8"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:0e302d5a",
+      "type": "geo",
+      "x": 60,
+      "y": 628,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 84,
+        "text": "4.  PUT   /loan/application/{id}/references     \u26a0 form-data (NOT JSON)\n     ref1_name, ref1_mobile, ref1_relation_type,  ref2_name, ref2_mobile, ref2_relation_type\n     relation:  FRIEND | BROTHER | SISTER | FATHER | MOTHER | SPOUSE | COLLEAGUE\n     \u2190 [{ id, name, mobile, is_verified: false }, ...]",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a9"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:af1f3043",
+      "type": "geo",
+      "x": 60,
+      "y": 736,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  STEP 3 \u00b7 OTP VERIFY  (repeat \u00d72 \u2014 one for each reference)",
+        "color": "orange",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "orange"
+      },
+      "parentId": "page:page",
+      "index": "a10"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:ce6a1fb7",
+      "type": "geo",
+      "x": 60,
+      "y": 792,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 64,
+        "text": "5.  POST  /loan/application/references/send-otp\n     body: { reference_id }\n     \u2190 { message: \"OTP sent\" }",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a11"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:10909183",
+      "type": "geo",
+      "x": 60,
+      "y": 868,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 64,
+        "text": "6.  POST  /loan/application/references/verify-otp\n     body: { reference_id, otp_code }\n     \u2190 { verified: true, verified_at }",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a12"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:496cb32d",
+      "type": "geo",
+      "x": 60,
+      "y": 956,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  STEP 4 \u00b7 DECLARATION",
+        "color": "orange",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "orange"
+      },
+      "parentId": "page:page",
+      "index": "a13"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:f7dbcd19",
+      "type": "geo",
+      "x": 60,
+      "y": 1012,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 84,
+        "text": "7.  PUT   /loan/application/{id}/declaration\n     body: { agreed_terms, consent_credit_check, consent_data_sharing,\n              has_existing_loans, has_credit_card, has_default_history,\n              terms_version, privacy_policy_version }\n     \u2190 { consent_timestamp }",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a14"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:daa6b14d",
+      "type": "geo",
+      "x": 60,
+      "y": 1120,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  STEP 5 \u00b7 SUMMARY & SUBMIT",
+        "color": "orange",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "orange"
+      },
+      "parentId": "page:page",
+      "index": "a15"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:f3d7670d",
+      "type": "geo",
+      "x": 60,
+      "y": 1176,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 60,
+        "text": "8.  GET   /loan/application/{id}/summary\n     \u2190 { loan_details, can_submit: true, pending_steps: [] }",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a16"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:b38c56e0",
+      "type": "geo",
+      "x": 60,
+      "y": 1248,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 74,
+        "text": "9.  POST  /loan/application/{id}/submit\n     body: { confirm: true }\n     \u2190 { reference_number, expected_decision_time: \"24h\" }\n     status \u2192 SUBMITTED   (app locked, lender_id = null)",
+        "color": "orange",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a17"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:004f0af1",
+      "type": "text",
+      "x": 200,
+      "y": 1346,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "text": "\u2193  appears in lender dashboard pool",
+        "color": "violet",
+        "size": "m",
+        "font": "sans",
+        "align": "middle",
+        "w": 400,
+        "autoSize": false,
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a18"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:89c6466c",
+      "type": "geo",
+      "x": 60,
+      "y": 1396,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  LENDER DASHBOARD",
+        "color": "violet",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "violet"
+      },
+      "parentId": "page:page",
+      "index": "a19"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:c9d70af8",
+      "type": "geo",
+      "x": 60,
+      "y": 1452,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 64,
+        "text": "10. GET   /lender/applications\n     returns all SUBMITTED apps where lender_id = null\n     \u2190 [{ application_id, reference_number, approved_amount, tenure_months, status }]",
+        "color": "violet",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a20"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:5d734f75",
+      "type": "geo",
+      "x": 60,
+      "y": 1528,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 80,
+        "text": "11. POST  /lender/pick/{application_id}?lender_id={id}\n     lender must be  is_active=True  and  is_blocked=False\n     row-level lock  (SELECT FOR UPDATE) \u2014 prevents 2 lenders picking same app\n     status \u2192 UNDER_REVIEW   |   lender_id = lender.id",
+        "color": "violet",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a21"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:7467c4b0",
+      "type": "geo",
+      "x": 60,
+      "y": 1620,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 60,
+        "text": "12. GET   /lender/my-applications/{lender_id}\n     \u2190 [{ application_id, reference_number, status, ... }]",
+        "color": "violet",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a22"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:d884b5bf",
+      "type": "geo",
+      "x": 60,
+      "y": 1704,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 334,
+        "h": 94,
+        "text": "13a. POST  /lender/approve/{id}\n      ?lender_id={id}\n      must be UNDER_REVIEW\n      must be same lender who picked\n      status \u2192 APPROVED\n      \u2190 { message: \"Approved\" }",
+        "color": "green",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a23"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:0f9b9677",
+      "type": "geo",
+      "x": 406,
+      "y": 1704,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 334,
+        "h": 94,
+        "text": "13b. POST  /lender/reject/{id}\n      ?lender_id={id}\n      &rejection_reason=...\n      must be UNDER_REVIEW\n      rejection_reason required\n      status \u2192 REJECTED  \u2717 terminal",
+        "color": "red",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a24"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:adbf2c95",
+      "type": "text",
+      "x": 200,
+      "y": 1822,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "text": "\u2193  only if status = APPROVED",
+        "color": "green",
+        "size": "m",
+        "font": "sans",
+        "align": "middle",
+        "w": 400,
+        "autoSize": false,
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a25"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:510c19e3",
+      "type": "geo",
+      "x": 60,
+      "y": 1872,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 44,
+        "text": "  DISBURSEMENT  (Admin only)",
+        "color": "red",
+        "fill": "semi",
+        "dash": "draw",
+        "size": "m",
+        "font": "sans",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "red"
+      },
+      "parentId": "page:page",
+      "index": "a26"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:ff088e17",
+      "type": "geo",
+      "x": 60,
+      "y": 1928,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 60,
+        "text": "14. GET   /admin/disbursement/{application_id}\n     \u2190 { approved_amount, processing_fee, gst_amount, net_disbursement_amount }",
+        "color": "red",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a27"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:cfc77cff",
+      "type": "geo",
+      "x": 60,
+      "y": 2000,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 84,
+        "text": "15. POST  /admin/disbursement/{application_id}\n     body: { payment_mode: BANK | UPI }\n     fetches verified payout from user_bank_details \u2192 MockNBFCPaymentGateway\n     status \u2192 DISBURSED\n     \u2190 { payment_status: SUCCESS, payment_reference_id, amount }",
+        "color": "red",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a28"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:d5f23873",
+      "type": "text",
+      "x": 60,
+      "y": 2120,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "text": "STATUS LIFECYCLE",
+        "color": "black",
+        "size": "l",
+        "font": "sans",
+        "align": "middle",
+        "w": 680,
+        "autoSize": false,
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a29"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:4fc01ab0",
+      "type": "geo",
+      "x": 70,
+      "y": 2172,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 90,
+        "h": 36,
+        "text": "DRAFT",
+        "color": "blue",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a30"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:ebfd5899",
+      "type": "geo",
+      "x": 170,
+      "y": 2172,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 90,
+        "h": 36,
+        "text": "SUBMITTED",
+        "color": "blue",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a31"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:5de9e3b3",
+      "type": "geo",
+      "x": 290,
+      "y": 2172,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 90,
+        "h": 36,
+        "text": "UNDER_REVIEW",
+        "color": "violet",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a32"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:527bdf9f",
+      "type": "geo",
+      "x": 440,
+      "y": 2172,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 90,
+        "h": 36,
+        "text": "APPROVED",
+        "color": "green",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a33"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:a92f1129",
+      "type": "geo",
+      "x": 550,
+      "y": 2172,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 90,
+        "h": 36,
+        "text": "DISBURSED",
+        "color": "red",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a34"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:acd73da9",
+      "type": "geo",
+      "x": 650,
+      "y": 2172,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 90,
+        "h": 36,
+        "text": "CLOSED",
+        "color": "grey",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a35"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:2f9314ae",
+      "type": "geo",
+      "x": 290,
+      "y": 2226,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 120,
+        "h": 36,
+        "text": "REJECTED \u2717",
+        "color": "red",
+        "fill": "light",
+        "dash": "draw",
+        "size": "s",
+        "font": "sans",
+        "align": "middle",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a36"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:3ce49c25",
+      "type": "text",
+      "x": 60,
+      "y": 2288,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "text": "KEY NUMBERS",
+        "color": "black",
+        "size": "l",
+        "font": "sans",
+        "align": "middle",
+        "w": 680,
+        "autoSize": false,
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a37"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:6a3a050a",
+      "type": "geo",
+      "x": 60,
+      "y": 2340,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 180,
+        "text": "Loan range:          Rs. 5,000 \u2013 Rs. 20,000\nTenures:             3 / 6 / 9 / 12 months\nInterest rate:       12% per annum (flat)\nProcessing fee:      5% of principal  +  18% GST on that fee\nNet disbursement:    principal  \u2212  (processing fee + GST)\nReferences:          2 required, both OTP-verified\nPayment modes:       BANK  |  UPI\nEligibility:         credit_score >= 650  (NOT FOIR)",
+        "color": "black",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a38"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:5c845650",
+      "type": "text",
+      "x": 60,
+      "y": 2540,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "text": "KEY RULES",
+        "color": "black",
+        "size": "l",
+        "font": "sans",
+        "align": "middle",
+        "w": 680,
+        "autoSize": false,
+        "scale": 1
+      },
+      "parentId": "page:page",
+      "index": "a39"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:116761b3",
+      "type": "geo",
+      "x": 60,
+      "y": 2592,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "geo": "rectangle",
+        "w": 680,
+        "h": 210,
+        "text": "\u2705  Eligibility uses credit_score (\u2265650) \u2014 FOIR is NOT used\n\u2705  approved_amount comes from the eligibility record \u2014 borrower cannot set it\n\u2705  Steps must be done in order \u2014 step_tracker enforces the sequence\n\u2705  Both references must OTP-verify before Declaration can be submitted\n\u2705  App is locked after /submit \u2014 no edits allowed\n\u2705  reference_number and all financial fields set at submit time only\n\u2705  Lender must be active=True and blocked=False to pick an app\n\u2705  Row-level DB lock \u2014 two lenders cannot claim the same app\n\u2705  Lender can only approve/reject apps they personally picked\n\u26a0\ufe0f  /purpose and /references use form-data \u2014 NOT JSON",
+        "color": "black",
+        "fill": "none",
+        "dash": "draw",
+        "size": "s",
+        "font": "mono",
+        "align": "start",
+        "verticalAlign": "middle",
+        "growY": 0,
+        "url": "",
+        "labelColor": "black"
+      },
+      "parentId": "page:page",
+      "index": "a40"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:5075207c",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "green",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:0f42079a",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:c44d743d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a41"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:44279eb2",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "blue",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:c44d743d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:92548384",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a42"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:d262d1dd",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "blue",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:92548384",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:c962de47",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a43"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:c490d61b",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:c962de47",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:6575825e",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a44"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:6c16efb8",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:6575825e",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:4f444e72",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a45"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:e58c27be",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:4f444e72",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:342c252f",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a46"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:ccd5b885",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:342c252f",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:0e302d5a",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a47"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:40e8572d",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:0e302d5a",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:af1f3043",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a48"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:c313b301",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:af1f3043",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:ce6a1fb7",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a49"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:484e339c",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:ce6a1fb7",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:10909183",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a50"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:17791f9f",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:10909183",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:496cb32d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a51"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:8f5c5150",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:496cb32d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:f7dbcd19",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a52"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:54ed5523",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:f7dbcd19",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:daa6b14d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a53"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:30ec6c15",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:daa6b14d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:f3d7670d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a54"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:8326888d",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "orange",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:f3d7670d",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:b38c56e0",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a55"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:61bce742",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "violet",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:b38c56e0",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:89c6466c",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a56"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:394be4a4",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "violet",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:89c6466c",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:c9d70af8",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a57"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:e88d8a30",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "violet",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:c9d70af8",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:5d734f75",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a58"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:e8ff3529",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "violet",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:5d734f75",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:7467c4b0",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a59"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:0ec43903",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "green",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:7467c4b0",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:d884b5bf",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a60"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:7e379286",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "red",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:7467c4b0",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:0f9b9677",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a61"
+    },
+    {
+      "typeName": "shape",
+      "id": "shape:a251483d",
+      "type": "arrow",
+      "x": 0,
+      "y": 0,
+      "rotation": 0,
+      "isLocked": false,
+      "opacity": 1,
+      "meta": {},
+      "props": {
+        "dash": "draw",
+        "size": "m",
+        "fill": "none",
+        "color": "green",
+        "labelColor": "black",
+        "bend": 0,
+        "start": {
+          "type": "binding",
+          "boundShapeId": "shape:d884b5bf",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 1
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "end": {
+          "type": "binding",
+          "boundShapeId": "shape:510c19e3",
+          "normalizedAnchor": {
+            "x": 0.5,
+            "y": 0
+          },
+          "isExact": false,
+          "isPrecise": false
+        },
+        "arrowheadStart": "none",
+        "arrowheadEnd": "arrow",
+        "text": "",
+        "font": "sans",
+        "labelPosition": 0.5
+      },
+      "parentId": "page:page",
+      "index": "a62"
+    },
+    {
+      "typeName": "camera",
+      "id": "camera:page:page",
+      "x": 0,
+      "y": 0,
+      "z": 0.7,
+      "meta": {}
+    },
+    {
+      "typeName": "instance_page_state",
+      "id": "instance_page_state:page:page",
+      "pageId": "page:page",
+      "selectedShapeIds": [],
+      "hintingShapeIds": [],
+      "erasingShapeIds": [],
+      "hoveredShapeId": null,
+      "editingShapeId": null,
+      "croppingShapeId": null,
+      "focusedGroupId": null,
+      "meta": {}
+    }
+  ]
+}
