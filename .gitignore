@@ -1,6 +1,6 @@
 *.pyc
 app/.env
-app/_venv/
+.venv/
 app/__pycache__/
 app/db_models/user_profiles.py
 app/db_models/user_bank_details.py
