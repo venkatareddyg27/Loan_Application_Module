@@ -7,7 +7,7 @@ MAX_LOAN_AMOUNT = Decimal("20000")
 
 ALLOWED_TENURES = [3, 6, 9, 12]
 
-ANNUAL_INTEREST_RATE = Decimal("12")   # 12%
+ANNUAL_INTEREST_RATE = Decimal("25")   # 12%
 PROCESSING_FEE_PERCENT = Decimal("5")  # 5%
 GST_RATE = Decimal("18")               # 18%
 

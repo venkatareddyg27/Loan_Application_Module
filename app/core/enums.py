@@ -42,6 +42,7 @@ class LoanApplicationStatus(str, Enum):
 class EligibilityStatusEnum(str, Enum):
     ELIGIBLE = "ELIGIBLE"
     REJECTED = "REJECTED"
+    PENDING = "PENDING"
 
 
 class ReferenceRelation(str, Enum):

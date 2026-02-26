@@ -481,9 +481,9 @@
 			"typeName": "shape"
 		},
 		{
-			"x": 19.499984741210938,
-			"y": 204.84866870613087,
-			"z": 1,
+			"x": 257.49870616221995,
+			"y": 141.20364305589473,
+			"z": 0.6654259032978047,
 			"meta": {},
 			"id": "camera:page:page",
 			"typeName": "camera"
@@ -793,7 +793,7 @@
 			"selectedShapeIds": [
 				"shape:Zw-aKX4QlelvD8ASgQmQg"
 			],
-			"hoveredShapeId": null,
+			"hoveredShapeId": "shape:Zw-aKX4QlelvD8ASgQmQg",
 			"erasingShapeIds": [],
 			"hintingShapeIds": [],
 			"focusedGroupId": null,
@@ -1727,6 +1727,36 @@
 			"typeName": "shape"
 		},
 		{
+			"x": 1293.6505262853739,
+			"y": 1167.931473943158,
+			"rotation": 0,
+			"isLocked": false,
+			"opacity": 1,
+			"meta": {},
+			"id": "shape:z6v5mcGpAWChthR2bZ2_y",
+			"type": "text",
+			"props": {
+				"color": "black",
+				"size": "m",
+				"w": 8,
+				"font": "draw",
+				"textAlign": "start",
+				"autoSize": true,
+				"scale": 1,
+				"richText": {
+					"type": "doc",
+					"content": [
+						{
+							"type": "paragraph"
+						}
+					]
+				}
+			},
+			"parentId": "page:page",
+			"index": "axzp1L4l",
+			"typeName": "shape"
+		},
+		{
 			"x": 370.83335876464844,
 			"y": 1305.6721843364717,
 			"rotation": 0,
@@ -2221,20 +2251,11 @@
 		{
 			"followingUserId": null,
 			"opacityForNextShape": 1,
-			"stylesForNextShape": {
-				"tldraw:arrowheadEnd": "arrow",
-				"tldraw:arrowKind": "arc",
-				"tldraw:arrowheadStart": "none",
-				"tldraw:geo": "rectangle",
-				"tldraw:size": "s",
-				"tldraw:font": "serif",
-				"tldraw:textAlign": "middle",
-				"tldraw:color": "red"
-			},
+			"stylesForNextShape": {},
 			"brush": null,
 			"scribbles": [],
 			"cursor": {
-				"type": "default",
+				"type": "ew-resize",
 				"rotation": 0
 			},
 			"isFocusMode": false,
@@ -2245,7 +2266,7 @@
 				"x": 0,
 				"y": 0,
 				"w": 959.3333740234375,
-				"h": 558
+				"h": 369.3333435058594
 			},
 			"insets": [
 				false,
@@ -2262,9 +2283,9 @@
 			"isFocused": true,
 			"devicePixelRatio": 1.5,
 			"isCoarsePointer": false,
-			"isHoveringCanvas": false,
+			"isHoveringCanvas": true,
 			"openMenus": [],
-			"isChangingStyle": true,
+			"isChangingStyle": false,
 			"isReadonly": false,
 			"meta": {},
 			"duplicateProps": null,
@@ -2397,7 +2418,7 @@
 			"typeName": "shape"
 		},
 		{
-			"x": -186.375,
+			"x": 207.85874143650483,
 			"y": -13.66115153999317,
 			"rotation": 0,
 			"isLocked": false,
@@ -2408,10 +2429,10 @@
 			"props": {
 				"color": "red",
 				"size": "s",
-				"w": 843.0833740234375,
+				"w": 448.84963258693267,
 				"font": "serif",
 				"textAlign": "middle",
-				"autoSize": true,
+				"autoSize": false,
 				"scale": 1,
 				"richText": {
 					"type": "doc",

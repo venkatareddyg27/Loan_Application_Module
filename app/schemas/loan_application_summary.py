@@ -1,7 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from app.core.enums import LoanApplicationStep
+from app.core.enums import LoanApplicationStep, EligibilityStatusEnum
 from app.services.loan_calculator import MIN_LOAN_AMOUNT, MAX_LOAN_AMOUNT
+
+
+# =========================================================
+# USER SUMMARY
+# =========================================================
 
 class UserSummarySchema(BaseModel):
     user_id: Optional[int] = None
@@ -13,15 +18,23 @@ class UserSummarySchema(BaseModel):
         from_attributes = True
 
 
+# =========================================================
+# ELIGIBILITY SUMMARY (FIXED & ALIGNED)
+# =========================================================
+
 class EligibilitySummarySchema(BaseModel):
     eligible: bool
     max_loan_amount: float
-    approved_interest_rate: float
+    interest_rate: float
     risk_category: Optional[str] = None
 
     class Config:
         from_attributes = True
 
+
+# =========================================================
+# LOAN DETAILS SUMMARY
+# =========================================================
 
 class LoanDetailsSummarySchema(BaseModel):
 
@@ -30,7 +43,7 @@ class LoanDetailsSummarySchema(BaseModel):
     requested_tenure_months: int
     interest_rate: Optional[float] = None
 
-    #  EMI
+    # EMI
     emi_amount: Optional[float] = None
     total_repayment: Optional[float] = None
 
@@ -39,12 +52,16 @@ class LoanDetailsSummarySchema(BaseModel):
     gst_on_processing_fee: Optional[float] = None
     total_processing_charges: Optional[float] = None
 
-    #  Lender Details
+    # Lender Details
     lender_name: Optional[str] = None
 
     class Config:
         from_attributes = True
 
+
+# =========================================================
+# PURPOSE SUMMARY
+# =========================================================
 
 class LoanPurposeSummarySchema(BaseModel):
     purpose: str
@@ -52,6 +69,10 @@ class LoanPurposeSummarySchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+# =========================================================
+# REFERENCES
+# =========================================================
 
 class ReferenceSummarySchema(BaseModel):
     name: str
@@ -73,6 +94,10 @@ class ReferencesStatusSchema(BaseModel):
         from_attributes = True
 
 
+# =========================================================
+# DECLARATION
+# =========================================================
+
 class DeclarationSummarySchema(BaseModel):
     has_existing_loans: bool
     has_credit_card: bool
@@ -83,6 +108,10 @@ class DeclarationSummarySchema(BaseModel):
         from_attributes = True
 
 
+# =========================================================
+# SUBMISSION STATUS
+# =========================================================
+
 class SubmissionStatusSchema(BaseModel):
     last_completed_step: Optional[LoanApplicationStep] = None
     can_submit: bool
@@ -92,10 +121,14 @@ class SubmissionStatusSchema(BaseModel):
         from_attributes = True
 
 
+# =========================================================
+# MAIN SUMMARY RESPONSE
+# =========================================================
+
 class LoanApplicationSummaryResponseSchema(BaseModel):
     application_id: int
     user: UserSummarySchema
-    eligibility: Optional[EligibilitySummarySchema] = None
+    eligibility: EligibilitySummarySchema
     loan_details: LoanDetailsSummarySchema
     purpose: LoanPurposeSummarySchema
     references: List[ReferenceSummarySchema]
@@ -107,11 +140,15 @@ class LoanApplicationSummaryResponseSchema(BaseModel):
         from_attributes = True
 
 
+# =========================================================
+# EDIT SCHEMAS
+# =========================================================
+
 class EditLoanDetailsSchema(BaseModel):
     approved_amount: Optional[float] = Field(
         None,
-        ge=MIN_LOAN_AMOUNT,   # ← from loan_calculator.py
-        le=MAX_LOAN_AMOUNT,   # ← from loan_calculator.py
+        ge=MIN_LOAN_AMOUNT,
+        le=MAX_LOAN_AMOUNT,
         description=f"Loan amount between ₹{MIN_LOAN_AMOUNT} and ₹{MAX_LOAN_AMOUNT}"
     )
     requested_tenure_months: Optional[int] = Field(
@@ -126,10 +163,12 @@ class EditLoanDetailsSchema(BaseModel):
 class EditLoanPurposeSchema(BaseModel):
     purpose_code: str = Field(
         ...,
-        description="Updated loan purpose code")
+        description="Updated loan purpose code"
+    )
     purpose_description: Optional[str] = Field(
         None,
-        description="Optional description for the purpose")
+        description="Optional description for the purpose"
+    )
 
     class Config:
         from_attributes = True
@@ -150,7 +189,8 @@ class EditReferenceSchema(BaseModel):
         ...,
         min_length=2,
         max_length=2,
-        description="Exactly 2 references required")
+        description="Exactly 2 references required"
+    )
 
     class Config:
         from_attributes = True

@@ -1,6 +1,6 @@
 *.pyc
 app/.env
-.venv/
+app/_venv/
 app/__pycache__/
 app/db_models/user_profiles.py
 app/db_models/user_bank_details.py
@@ -8,5 +8,5 @@ app/db_models/loan_eligibility.py
 app/schemas/loan_eligibility_schema.py
 app/repositories/loan_eligibility_repo.py
 app/services/loan_eligibility_service.py
-app/routes/loan_eligibility_router.py
+app/routes/loan_eligibility_route.py
 .env

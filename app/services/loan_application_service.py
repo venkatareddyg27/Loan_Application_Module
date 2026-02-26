@@ -8,16 +8,19 @@ from app.core.enums import (
     LoanApplicationStatus,
     LoanApplicationStep,
     enum_value,
-    EligibilityStatusEnum,)
+    EligibilityStatusEnum,
+)
 from app.repositories import loan_application_repo
 from app.core.reference_generator import generate_loan_reference_number
 from app.services.loan_application_validation import validate_final_submission
 from app.services.loan_eligibility_service import LoanEligibilityService
 from app.schemas.loan_application import (
     LoanSubmitResponseSchema,
-    LoanApplicationResponseSchema)
+    LoanApplicationResponseSchema,
+)
 from app.services.loan_application_lock_manager_service import (
-    ApplicationLockManager)
+    ApplicationLockManager,
+)
 from app.services.loan_calculator import calculate_loan_summary
 
 
@@ -37,7 +40,8 @@ class LoanApplicationService:
         # Fetch eligibility record
         eligibility = LoanEligibilityService.validate_and_fetch(
             db=db,
-            eligibility_id=data.eligibility_id)
+            eligibility_id=data.eligibility_id
+        )
 
         # Reject if eligibility status is REJECTED
         if eligibility.eligibility_status == EligibilityStatusEnum.REJECTED:
@@ -61,12 +65,11 @@ class LoanApplicationService:
                 detail="Eligible amount not found for this eligibility record"
             )
 
-        # Create Draft Application
         application = LoanApplication(
             user_profile_id=data.user_profile_id,
             eligibility_id=eligibility.id,
-            reference_number=None,
-            approved_amount=eligible_amount,  # Comes from eligibility
+            reference_number=None,   
+            approved_amount=eligible_amount,
             requested_tenure_months=data.requested_tenure_months,
             application_status=enum_value(LoanApplicationStatus.DRAFT),
             current_step=enum_value(LoanApplicationStep.LOAN_DETAILS),
@@ -75,7 +78,7 @@ class LoanApplicationService:
         )
 
         db.add(application)
-        db.flush()  # Generate application ID
+        db.flush()
 
         # Initialize Step Tracker
         tracker = LoanApplicationStepTracker(
@@ -95,6 +98,8 @@ class LoanApplicationService:
         return {
             "application_id": application.id,
             "approved_amount": application.approved_amount,
+            "eligibility_status": eligibility.eligibility_status,
+            "eligible_amount": eligibility.max_eligible_amount,
             "next_step": application.current_step
         }
 
@@ -109,14 +114,26 @@ class LoanApplicationService:
                 detail="Loan application not found"
             )
 
+        if not application.eligibility:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Eligibility record not linked to this application"
+            )
+
         return LoanApplicationResponseSchema(
             application_id=application.id,
             application_status=application.application_status,
             current_step=application.current_step,
+
+            #  Pull from eligibility table
+            eligibility_status=application.eligibility.eligibility_status,
+            eligible_amount=application.eligibility.max_eligible_amount,
+
             approved_amount=application.approved_amount,
             requested_tenure_months=application.requested_tenure_months,
             interest_rate=application.interest_rate
         )
+
 
     @staticmethod
     def submit_application(
@@ -155,26 +172,22 @@ class LoanApplicationService:
                 detail="Application step tracker missing"
             )
 
-        # Validate all steps before submission
         validate_final_submission(db, application, tracker)
 
-        # Move to SUBMITTED step
         tracker.current_step = enum_value(LoanApplicationStep.SUBMITTED)
         tracker.last_completed_step = enum_value(LoanApplicationStep.SUMMARY)
         application.current_step = enum_value(LoanApplicationStep.SUBMITTED)
 
-        # Calculate EMI using approved amount
         loan_summary = calculate_loan_summary(
             principal=float(application.approved_amount),
             tenure_months=application.requested_tenure_months
         )
 
-        # Generate Loan Reference
         application.reference_number = generate_loan_reference_number(db)
 
-        # Update application financial details
         application.application_status = enum_value(
-            LoanApplicationStatus.SUBMITTED)
+            LoanApplicationStatus.SUBMITTED
+        )
         application.is_submitted = True
         application.submitted_at = datetime.now(timezone.utc)
 
@@ -184,9 +197,6 @@ class LoanApplicationService:
         application.gst_amount = loan_summary["gst_on_processing_fee"]
         application.total_repayment = loan_summary["total_repayment"]
 
-        application.lender_id = None  
-
-        # Lock application after submission
         ApplicationLockManager.lock_application(application)
 
         db.commit()
@@ -195,4 +205,5 @@ class LoanApplicationService:
         return LoanSubmitResponseSchema(
             reference_number=application.reference_number,
             message="Loan application submitted successfully",
-            expected_decision_time="24 hours")
+            expected_decision_time="24 hours"
+        )

@@ -37,4 +37,4 @@ def disburse_loan(
     return LoanDisbursementService.disburse_loan(
         db=db,
         application_id=application_id,
-        payment_mode=request.payment_mode )
+        )

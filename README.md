@@ -383,7 +383,7 @@ Borrower's job is done. The application appears in the lender's pool.
 │     kyc_status   │                         │
 │     pan_status   │                         ▼
 │     profile_status          ┌────────────────────────────────────────┐
-└────────┬─────────┘          │      loan_application  ★ (Central)    │
+└────────┬─────────┘          │      loan_application  ★ (Central)     │
          │ 1:many             │────────────────────────────────────────│
          └───────────────────▶│ PK  id                                 │
                               │ FK  user_profile_id                    │

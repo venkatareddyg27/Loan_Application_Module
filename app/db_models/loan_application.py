@@ -1,10 +1,10 @@
 from sqlalchemy import (
-    Column, Integer, Numeric, String, Boolean,
+    Column, DateTime, Integer, Numeric, String, Boolean,
     TIMESTAMP, Enum, ForeignKey)
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.core.session import Base
-from app.core.enums import LoanApplicationStatus
+from app.core.enums import LoanApplicationStatus, EligibilityStatusEnum
 
 
 class LoanApplication(Base):
@@ -13,14 +13,14 @@ class LoanApplication(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     user_profile_id = Column(
-        Integer,   
+        Integer,
         ForeignKey("user_profiles.id"),
         nullable=True)
 
     eligibility_id = Column(
         Integer,
         ForeignKey("loan_eligibility.id"),
-        nullable=False)
+        nullable=True   )
 
     lender_id = Column(
         Integer,
@@ -28,6 +28,7 @@ class LoanApplication(Base):
         nullable=True)
 
     reference_number = Column(String(8), unique=True, index=True)
+    eligible_amount = Column(Numeric(12, 2), default=0)
     approved_amount = Column(Numeric(12, 2), nullable=False)
     requested_tenure_months = Column(Integer, nullable=False)
     interest_rate = Column(Numeric(5, 2), nullable=True)
@@ -36,7 +37,8 @@ class LoanApplication(Base):
     gst_amount = Column(Numeric(10, 2), nullable=True)
     total_repayment = Column(Numeric(14, 2), nullable=True)
     current_step = Column(String(50), nullable=False, default="OPENED")
-
+    payout_id = Column(String, nullable=True)
+    payout_status = Column(String, nullable=True)
     application_status = Column(
         Enum(LoanApplicationStatus, name="loan_application_status_enum"),
         default=LoanApplicationStatus.DRAFT,
@@ -56,7 +58,7 @@ class LoanApplication(Base):
     disbursed_at = Column(TIMESTAMP, nullable=True)
     ip_address = Column(String, nullable=True)
 
-    # Relationships
+
     user_profile = relationship(
         "UserProfile",
         back_populates="loan_applications")

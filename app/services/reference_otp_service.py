@@ -1,24 +1,49 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import random
 import hashlib
 from fastapi import HTTPException
+import logging
 
-from app.db_models.loan_application_references_otp import ReferenceMobileOTP
+#  REDIS ENABLED
+from app.core.redis_client import redis_client
+
+#  TWILIO COMMENTED 
+# from app.core.twilio_client import twilio_client
+# from app.core.config import settings
+
 from app.db_models.loan_application_steps import LoanApplicationStepTracker
 from app.db_models.loan_application import LoanApplication
 from app.repositories.loan_application_reference_repo import LoanApplicationReferenceRepository
 from app.core.enums import LoanApplicationStep, enum_value
 
-
+# ==========================================
+# REDIS CONFIG
+# ==========================================
 COOLDOWN_SECONDS = 30
-MAX_OTP_PER_IP_10_MIN = 5
-OTP_EXPIRY_MINUTES = 5
+OTP_EXPIRY_SECONDS = 300
 MAX_ATTEMPTS = 3
+MAX_OTP_PER_IP_10_MIN = 5
+MAX_RESENDS = 3
 
-
+logger = logging.getLogger(__name__)
 class ReferenceOTPService:
 
+    @staticmethod
+    def _otp_key(reference_id: int):
+        return f"ref_otp:{reference_id}"
+
+    @staticmethod
+    def _ip_key(ip: str):
+        return f"otp_ip:{ip}"
+
+    @staticmethod
+    def _resend_key(reference_id: int):
+        return f"ref_resend:{reference_id}"
+
+    # ==============================
+    # SEND OTP
+    # ==============================
     @staticmethod
     def send_reference_otp(db: Session, reference_id: int, client_ip: str):
 
@@ -26,93 +51,127 @@ class ReferenceOTPService:
         if not reference:
             raise HTTPException(status_code=404, detail="Reference not found")
 
-        now = datetime.now(timezone.utc)
+        if not reference.mobile_number:
+            raise HTTPException(status_code=400, detail="Reference mobile number missing")
 
-        # Cooldown check
-        cooldown_time = now - timedelta(seconds=COOLDOWN_SECONDS)
+        otp_key = ReferenceOTPService._otp_key(reference_id)
+        ip_key = ReferenceOTPService._ip_key(client_ip)
+        resend_key = ReferenceOTPService._resend_key(reference_id)
 
-        recent_otp = db.query(ReferenceMobileOTP).filter(
-            ReferenceMobileOTP.reference_id == reference_id,
-            ReferenceMobileOTP.created_at >= cooldown_time
-        ).first()
+        #  Cooldown Check
+        if redis_client.exists(otp_key):
+            ttl = redis_client.ttl(otp_key)
+            if ttl > (OTP_EXPIRY_SECONDS - COOLDOWN_SECONDS):
+                remaining = COOLDOWN_SECONDS - (OTP_EXPIRY_SECONDS - ttl)
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Please wait {remaining} seconds before requesting OTP again"
+                )
 
-        if recent_otp:
-            raise HTTPException(
-                status_code=400,
-                detail="Please wait before requesting OTP again"
-            )
-
-        # IP rate limit
-        ten_min_ago = now - timedelta(minutes=10)
-
-        otp_count = db.query(ReferenceMobileOTP).filter(
-            ReferenceMobileOTP.ip_address == client_ip,
-            ReferenceMobileOTP.created_at >= ten_min_ago
-        ).count()
-
-        if otp_count >= MAX_OTP_PER_IP_10_MIN:
+        #  IP Rate Limit
+        ip_count = redis_client.get(ip_key)
+        if ip_count and int(ip_count) >= MAX_OTP_PER_IP_10_MIN:
             raise HTTPException(
                 status_code=429,
                 detail="Too many OTP requests from this IP"
             )
 
-        # Invalidate old unused OTPs
-        old_otps = db.query(ReferenceMobileOTP).filter(
-            ReferenceMobileOTP.reference_id == reference_id,
-            ReferenceMobileOTP.is_used == False
-        ).all()
+        redis_client.incr(ip_key)
+        redis_client.expire(ip_key, 600)
 
-        for otp in old_otps:
-            otp.is_used = True
+        #  Resend Limit
+        resend_count = redis_client.get(resend_key)
+        if resend_count and int(resend_count) >= MAX_RESENDS:
+            raise HTTPException(
+                status_code=400,
+                detail="Maximum OTP resend attempts reached"
+            )
 
-        # Generate OTP
+        redis_client.incr(resend_key)
+        redis_client.expire(resend_key, OTP_EXPIRY_SECONDS)
+
+        #  Generate OTP
         otp_plain = str(random.randint(100000, 999999))
         hashed_otp = hashlib.sha256(otp_plain.encode()).hexdigest()
 
-        new_otp = ReferenceMobileOTP(
-            reference_id=reference_id,
-            otp_code=hashed_otp,
-            expires_at=now + timedelta(minutes=OTP_EXPIRY_MINUTES),
-            attempts=0,
-            is_used=False,
-            ip_address=client_ip
+        redis_client.hset(otp_key, mapping={
+            "otp": hashed_otp,
+            "attempts": 0
+        })
+        redis_client.expire(otp_key, OTP_EXPIRY_SECONDS)
+
+        #  TWILIO DISABLED 
+
+        # try:
+        #     message = twilio_client.messages.create(
+        #         body=f"Your Loan Reference OTP is {otp_plain}. It expires in 5 minutes.",
+        #         from_=settings.TWILIO_PHONE_NUMBER,
+        #         to=reference.mobile_number
+        #     )
+        # except Exception as e:
+        #     redis_client.delete(otp_key)
+        #     raise HTTPException(
+        #         status_code=500,
+        #         detail=f"SMS sending failed: {str(e)}"
+        #     )
+
+        #  PRINT OTP IN TERMINAL (DEV ONLY)
+
+        print("\n===================================")
+        print("REFERENCE OTP (DEV MODE)")
+        print(f"Reference ID : {reference_id}")
+        print(f"Mobile       : {reference.mobile_number}")
+        print(f"OTP          : {otp_plain}")
+        print("===================================\n")
+
+        logger.info(f"DEV OTP for reference {reference_id}: {otp_plain}")
+
+        return {
+            "message": "OTP generated successfully"
+        }
+
+    # ==============================
+    # RESEND OTP
+    # ==============================
+    @staticmethod
+    def resend_reference_otp(db: Session, reference_id: int, client_ip: str):
+
+        reference = LoanApplicationReferenceRepository.get_by_id(db, reference_id)
+        if not reference:
+            raise HTTPException(status_code=404, detail="Reference not found")
+
+        if reference.is_verified:
+            raise HTTPException(
+                status_code=400,
+                detail="Reference already verified"
+            )
+
+        return ReferenceOTPService.send_reference_otp(
+            db,
+            reference_id,
+            client_ip
         )
 
-        db.add(new_otp)
-        db.commit()
-
-        #  Replace this with SMS provider integration
-        print(f"Reference OTP (Dev Mode): {otp_plain}")
-
-        return {"message": "OTP sent successfully"}
-
+    # ==============================
+    # VERIFY OTP
+    # ==============================
     @staticmethod
     def verify_reference_otp(db: Session, payload, client_ip: str):
 
-        now = datetime.now(timezone.utc)
+        otp_key = ReferenceOTPService._otp_key(payload.reference_id)
 
-        otp = db.query(ReferenceMobileOTP).filter(
-            ReferenceMobileOTP.reference_id == payload.reference_id,
-            ReferenceMobileOTP.is_used == False
-        ).order_by(ReferenceMobileOTP.created_at.desc()).first()
+        data = redis_client.hgetall(otp_key)
 
-        if not otp:
+        if not data:
             raise HTTPException(
                 status_code=400,
-                detail="No active OTP found"
+                detail="OTP expired or not found"
             )
 
-        if otp.expires_at < now:
-            otp.is_used = True
-            db.commit()
-            raise HTTPException(
-                status_code=400,
-                detail="OTP expired. Please request new OTP."
-            )
+        attempts = int(data.get("attempts", 0))
 
-        if otp.attempts >= MAX_ATTEMPTS:
-            otp.is_used = True
-            db.commit()
+        if attempts >= MAX_ATTEMPTS:
+            redis_client.delete(otp_key)
             raise HTTPException(
                 status_code=400,
                 detail="OTP attempts exceeded"
@@ -122,37 +181,43 @@ class ReferenceOTPService:
             payload.otp_code.encode()
         ).hexdigest()
 
-        if otp.otp_code != hashed_input:
-            otp.attempts += 1
-            db.commit()
+        if data["otp"] != hashed_input:
+            redis_client.hincrby(otp_key, "attempts", 1)
             raise HTTPException(
                 status_code=400,
                 detail="Invalid OTP"
             )
 
-        # SUCCESS
-        otp.is_used = True
-        otp.verified_at = now
-        otp.reference.is_verified = True
+        #  SUCCESS
+        redis_client.delete(otp_key)
 
+        reference = LoanApplicationReferenceRepository.get_by_id(
+            db, payload.reference_id
+        )
+
+        if not reference:
+            raise HTTPException(status_code=404, detail="Reference not found")
+
+        reference.is_verified = True
         db.commit()
-        db.refresh(otp.reference)
 
-        # Update step if all references verified
         ReferenceOTPService.update_application_step_if_references_verified(
             db,
-            otp.reference.application_id)
+            reference.application_id
+        )
 
         return {
             "reference_id": payload.reference_id,
             "verified": True,
-            "verified_at": otp.verified_at
+            "verified_at": datetime.now(timezone.utc)
         }
+
+    # UPDATE APPLICATION STEP
 
     @staticmethod
     def update_application_step_if_references_verified(
         db: Session,
-        application_id
+        application_id: int
     ):
 
         references = LoanApplicationReferenceRepository.get_by_application_id(
