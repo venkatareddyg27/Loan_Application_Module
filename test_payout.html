@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loan Disbursement Test</title>
+    <style>
+        body { font-family: Arial; padding: 30px; }
+        button { padding: 10px 15px; margin-top: 10px; }
+        select, input { padding: 8px; margin: 5px 0; width: 250px; }
+        pre { background: #f4f4f4; padding: 15px; }
+    </style>
+</head>
+<body>
+
+<h2>Loan Disbursement</h2>
+
+<label>Application ID:</label><br>
+<input type="number" id="applicationId" value="1"><br>
+
+<label>Payment Mode:</label><br>
+<select id="paymentMode">
+    <option value="BANK">BANK</option>
+    <option value="UPI">UPI</option>
+</select><br>
+
+<button onclick="preview()">Preview Charges</button>
+<button onclick="disburse()">Disburse Loan</button>
+
+<h3>Response:</h3>
+<pre id="response"></pre>
+
+<script>
+
+const BASE_URL  = "http://localhost:8000/admin/disbursement";
+
+async function preview() {
+    const appId = document.getElementById("applicationId").value;
+
+    try {
+        const res = await fetch(`${BASE_URL}/${appId}`);
+        const data = await res.json();
+
+        document.getElementById("response").innerText =
+            JSON.stringify(data, null, 2);
+    } catch (err) {
+        document.getElementById("response").innerText = err;
+    }
+}
+
+async function disburse() {
+    const appId = document.getElementById("applicationId").value;
+    const mode = document.getElementById("paymentMode").value;
+
+    try {
+        const res = await fetch(`${BASE_URL}/${appId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                payment_mode: mode
+            })
+        });
+
+        const data = await res.json();
+
+        document.getElementById("response").innerText =
+            JSON.stringify(data, null, 2);
+
+    } catch (err) {
+        document.getElementById("response").innerText = err;
+    }
+}
+
+</script>
+
+</body>
+</html>

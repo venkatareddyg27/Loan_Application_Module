@@ -9,7 +9,7 @@ class LoanApplicationPurpose(Base):
 
     application_id = Column(
         Integer,
-        ForeignKey("loan_application.id", ondelete="CASCADE"),
+        ForeignKey("loan_applications.id", ondelete="CASCADE"),
         primary_key=True)
 
     purpose_code = Column(

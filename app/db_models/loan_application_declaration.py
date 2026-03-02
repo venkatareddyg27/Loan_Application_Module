@@ -10,7 +10,7 @@ class LoanApplicationDeclaration(Base):
     id = Column(Integer, primary_key=True, index=True)
     application_id = Column(
         Integer,
-        ForeignKey("loan_application.id", ondelete="CASCADE"),
+        ForeignKey("loan_applications.id", ondelete="CASCADE"),
         nullable=False,
         unique=True)
 
@@ -29,6 +29,6 @@ class LoanApplicationDeclaration(Base):
     updated_at = Column(DateTime, onupdate=func.now())
     is_locked = Column(Boolean, default=False)
 
-    application = relationship(
+    loan_application = relationship(
         "LoanApplication",
         back_populates="declaration")

@@ -11,3 +11,4 @@ from .lender import Lender
 from .user_bank_details import UserBankDetails
 from .user_profiles import UserProfile
 from .loan_eligibility import LoanEligibility
+from .users import Users

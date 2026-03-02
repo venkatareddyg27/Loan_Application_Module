@@ -12,24 +12,15 @@ class PreDisbursementService:
     def get_preview(db: Session, application_id: int):
         """
         Shows loan charges preview before actual disbursement.
-        Uses approved_amount only.
+        Works even if already disbursed.
         """
+
         application = db.get(LoanApplication, application_id)
 
         if not application:
             raise HTTPException(404, "Application not found")
 
-        if application.application_status == LoanApplicationStatus.DISBURSED:
-            raise HTTPException(
-                400,
-                "Loan already disbursed"
-            )
-
-        if application.application_status != LoanApplicationStatus.APPROVED:
-            raise HTTPException(
-                400,
-                "Loan must be APPROVED to view disbursement preview"
-            )
+        # DO NOT block if DISBURSED anymore
 
         if not application.approved_amount:
             raise HTTPException(
@@ -53,6 +44,7 @@ class PreDisbursementService:
 
         return {
             "application_id": application.id,
+            "current_status": application.application_status.value,
             "approved_amount": loan_calc["approved_amount"],
             "tenure_months": loan_calc["tenure_months"],
             "interest_rate_percent": loan_calc["interest_rate"],

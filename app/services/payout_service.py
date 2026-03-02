@@ -1,4 +1,5 @@
-from app.core.razorpay_client import client
+from decimal import Decimal
+from app.core.razorpay_client import RazorpayClient
 from app.core.config import settings
 
 
@@ -6,15 +7,20 @@ class RazorpayPayoutService:
 
     @staticmethod
     def create_contact(user):
-        return client.contact.create({
+
+        payload = {
             "name": user.full_name,
-            "type": "customer",
-            "reference_id": f"user_{user.id}",
-        })
+            "email": user.email,
+            "contact": user.phone_number,
+            "type": "customer"
+        }
+
+        return RazorpayClient.create_contact(payload)
 
     @staticmethod
     def create_fund_account(contact_id, bank):
-        return client.fund_account.create({
+
+        payload = {
             "contact_id": contact_id,
             "account_type": "bank_account",
             "bank_account": {
@@ -22,19 +28,22 @@ class RazorpayPayoutService:
                 "ifsc": bank.ifsc_code,
                 "account_number": bank.account_number
             }
-        })
+        }
+
+        return RazorpayClient.create_fund_account(payload)
 
     @staticmethod
-    def initiate_payout(amount, fund_account_id, loan_id):
+    def initiate_payout(amount: Decimal, fund_account_id: str, reference: str):
 
-        return client.payout.create({
+        payload = {
             "account_number": settings.RAZORPAY_ACCOUNT_NUMBER,
             "fund_account_id": fund_account_id,
-            "amount": int(amount * 100),
+            "amount": int(amount * 100),  # convert to paise
             "currency": "INR",
             "mode": "IMPS",
-            "purpose": "payout",
-            "queue_if_low_balance": True,
-            "reference_id": f"loan_{loan_id}",
-            "narration": "Loan Disbursement"
-        })
+            "purpose": "loan_disbursement",
+            "reference_id": reference,
+            "queue_if_low_balance": True
+        }
+
+        return RazorpayClient.create_payout(payload)

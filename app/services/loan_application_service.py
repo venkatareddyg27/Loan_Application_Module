@@ -4,12 +4,15 @@ from fastapi import HTTPException, status
 
 from app.db_models.loan_application import LoanApplication
 from app.db_models.loan_application_steps import LoanApplicationStepTracker
+from app.db_models.user_profiles import UserProfile
+
 from app.core.enums import (
     LoanApplicationStatus,
     LoanApplicationStep,
     enum_value,
     EligibilityStatusEnum,
 )
+
 from app.repositories import loan_application_repo
 from app.core.reference_generator import generate_loan_reference_number
 from app.services.loan_application_validation import validate_final_submission
@@ -34,27 +37,49 @@ class LoanApplicationService:
                 detail="Application already submitted. Editing not allowed."
             )
 
+    # =====================================================
+    # APPLY LOAN (SAFE VERSION - NO FK ERRORS)
+    # =====================================================
     @staticmethod
     def apply_loan(db: Session, data):
 
-        # Fetch eligibility record
+        # 1️⃣ Validate eligibility exists
         eligibility = LoanEligibilityService.validate_and_fetch(
             db=db,
             eligibility_id=data.eligibility_id
         )
 
-        # Reject if eligibility status is REJECTED
+        # 2️⃣ Validate user_profile_id provided
+        if not data.user_profile_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="user_profile_id is required"
+            )
+
+        # 3️⃣ Validate user_profile exists
+        profile = db.query(UserProfile).filter(
+            UserProfile.id == data.user_profile_id
+        ).first()
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User profile not found"
+            )
+
+        # 4️⃣ Ensure eligibility belongs to this profile
+        if eligibility.user_profile_id != profile.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Eligibility does not belong to this user profile"
+            )
+
+        # 5️⃣ Reject if eligibility rejected
         if eligibility.eligibility_status == EligibilityStatusEnum.REJECTED:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=eligibility.failure_reason or
                 "User is not eligible for the loan"
-            )
-
-        if not data.user_profile_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="user_profile_id is required"
             )
 
         eligible_amount = eligibility.max_eligible_amount
@@ -65,10 +90,11 @@ class LoanApplicationService:
                 detail="Eligible amount not found for this eligibility record"
             )
 
+        # 6️⃣ Create Loan Application (FK Safe)
         application = LoanApplication(
-            user_profile_id=data.user_profile_id,
+            user_profile_id=profile.id,
             eligibility_id=eligibility.id,
-            reference_number=None,   
+            reference_number=None,
             approved_amount=eligible_amount,
             requested_tenure_months=data.requested_tenure_months,
             application_status=enum_value(LoanApplicationStatus.DRAFT),
@@ -78,9 +104,9 @@ class LoanApplicationService:
         )
 
         db.add(application)
-        db.flush()
+        db.flush()  # ensures application.id generated
 
-        # Initialize Step Tracker
+        # 7️⃣ Initialize Step Tracker
         tracker = LoanApplicationStepTracker(
             application_id=application.id,
             loan_details_completed=True,
@@ -103,6 +129,9 @@ class LoanApplicationService:
             "next_step": application.current_step
         }
 
+    # =====================================================
+    # GET APPLICATION
+    # =====================================================
     @staticmethod
     def get_application(db: Session, application_id: int):
 
@@ -124,17 +153,16 @@ class LoanApplicationService:
             application_id=application.id,
             application_status=application.application_status,
             current_step=application.current_step,
-
-            #  Pull from eligibility table
             eligibility_status=application.eligibility.eligibility_status,
             eligible_amount=application.eligibility.max_eligible_amount,
-
             approved_amount=application.approved_amount,
             requested_tenure_months=application.requested_tenure_months,
             interest_rate=application.interest_rate
         )
 
-
+    # =====================================================
+    # SUBMIT APPLICATION
+    # =====================================================
     @staticmethod
     def submit_application(
         db: Session,
@@ -178,16 +206,14 @@ class LoanApplicationService:
         tracker.last_completed_step = enum_value(LoanApplicationStep.SUMMARY)
         application.current_step = enum_value(LoanApplicationStep.SUBMITTED)
 
+        # Loan calculations
         loan_summary = calculate_loan_summary(
             principal=float(application.approved_amount),
             tenure_months=application.requested_tenure_months
         )
 
         application.reference_number = generate_loan_reference_number(db)
-
-        application.application_status = enum_value(
-            LoanApplicationStatus.SUBMITTED
-        )
+        application.application_status = enum_value(LoanApplicationStatus.SUBMITTED)
         application.is_submitted = True
         application.submitted_at = datetime.now(timezone.utc)
 

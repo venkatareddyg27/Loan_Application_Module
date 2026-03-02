@@ -16,7 +16,6 @@ class Settings(BaseSettings):
     # Razorpay
     RAZORPAY_KEY_ID: str
     RAZORPAY_KEY_SECRET: str
-    RAZORPAY_ACCOUNT_NUMBER: str
 
     # Twilio
     TWILIO_ACCOUNT_SID: str

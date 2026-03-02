@@ -14,12 +14,15 @@ class LoanApplicationSummaryService:
     @staticmethod
     def get_summary(db: Session, application_id: int):
 
-        # Load related data efficiently
+        # =====================================================
+        # Load Application With All Required Relationships
+        # =====================================================
         application = db.query(LoanApplication).options(
             joinedload(LoanApplication.eligibility),
             joinedload(LoanApplication.purpose),
             joinedload(LoanApplication.references),
-            joinedload(LoanApplication.declaration)
+            joinedload(LoanApplication.declaration),
+            joinedload(LoanApplication.user_profile).joinedload(UserProfile.user)
         ).filter(
             LoanApplication.id == application_id
         ).first()
@@ -37,7 +40,7 @@ class LoanApplicationSummaryService:
             )
 
         # =====================================================
-        # Eligibility Section (FIXED)
+        # Eligibility Section
         # =====================================================
         if not application.eligibility:
             raise HTTPException(
@@ -54,13 +57,9 @@ class LoanApplicationSummaryService:
                 detail="Eligible amount not available"
             )
 
-        # Convert enum to boolean
-        is_eligible = True if eligibility_enum.name == "ELIGIBLE" else False
-
-        # Use calculated interest rate or default
+        is_eligible = eligibility_enum.name == "ELIGIBLE"
         interest_rate = float(application.interest_rate or 25)
 
-        # Optional Risk Category Logic
         risk_category = None
         credit_score = application.eligibility.credit_score_used
         if credit_score:
@@ -74,18 +73,16 @@ class LoanApplicationSummaryService:
         eligibility_summary = EligibilitySummarySchema(
             eligible=is_eligible,
             max_loan_amount=eligible_amount,
-            interest_rate=interest_rate,   # ✅ CHANGED FIELD NAME
+            interest_rate=interest_rate,
             risk_category=risk_category
         )
 
         principal = eligible_amount
 
         # =====================================================
-        # User Section
+        # User Section (Correct Mobile Mapping)
         # =====================================================
-        profile = db.query(UserProfile).filter(
-            UserProfile.id == application.user_profile_id
-        ).first()
+        profile = application.user_profile
 
         if not profile:
             raise HTTPException(
@@ -93,10 +90,15 @@ class LoanApplicationSummaryService:
                 detail="User profile not found"
             )
 
+        mobile_number = None
+
+        if profile.user:
+            mobile_number = profile.user.phone_number
+
         user_summary = UserSummarySchema(
-            user_id=application.user_profile_id,
+            user_id=profile.id,
             full_name=profile.full_name,
-            mobile_number=getattr(profile, "mobile_number", None),
+            mobile_number=mobile_number,
             email=profile.email
         )
 

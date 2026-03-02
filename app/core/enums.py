@@ -36,7 +36,8 @@ class LoanApplicationStatus(str, Enum):
     NBFC_APPROVED = "NBFC_APPROVED"
     DISBURSED = "DISBURSED"
     CLOSED = "CLOSED"
-
+    PAYOUT_INITIATED = "PAYOUT_INITIATED"
+    PAYOUT_FAILED = "PAYOUT_FAILED"
 
 
 class EligibilityStatusEnum(str, Enum):

@@ -11,7 +11,7 @@ class LoanApplicationReference(Base):
 
     application_id = Column(
         Integer,
-        ForeignKey("loan_application.id", ondelete="CASCADE"),
+        ForeignKey("loan_applications.id", ondelete="CASCADE"),
         nullable=False,
         index=True)
 

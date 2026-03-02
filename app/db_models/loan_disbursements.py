@@ -10,7 +10,7 @@ class LoanDisbursement(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     application_id = Column(
-        ForeignKey("loan_application.id", ondelete="CASCADE"),
+        ForeignKey("loan_applications.id", ondelete="CASCADE"),
         nullable=False,
         index=True)
 
@@ -29,6 +29,6 @@ class LoanDisbursement(Base):
     initiated_at = Column(DateTime, server_default=func.now())
     completed_at = Column(DateTime, nullable=True)
 
-    application = relationship(
+    loan_application = relationship(
         "LoanApplication",
         back_populates="disbursements")

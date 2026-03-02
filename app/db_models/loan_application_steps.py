@@ -9,7 +9,7 @@ class LoanApplicationStepTracker(Base):
 
     application_id = Column(
         Integer,
-        ForeignKey("loan_application.id", ondelete="CASCADE"),
+        ForeignKey("loan_applications.id", ondelete="CASCADE"),
         primary_key=True)
     loan_details_completed = Column(Boolean, default=True)
     purpose_completed = Column(Boolean, default=False)

@@ -18,6 +18,6 @@ class Lender(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationship with LoanApplication
-    loan_applications = relationship(
+    loan_application = relationship(
         "LoanApplication",
         back_populates="lender")
