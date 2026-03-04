@@ -23,7 +23,7 @@ class LoanDisbursementService:
     ):
         try:
             # ---------------------------------------------------
-            # 1️⃣ Lock Loan Row (Prevents double execution)
+            # 1️ Lock Loan Row 
             # ---------------------------------------------------
             loan: LoanApplication = (
                 db.query(LoanApplication)
@@ -38,7 +38,7 @@ class LoanDisbursementService:
             requested_mode = payment_mode.upper() if payment_mode else None
 
             # ---------------------------------------------------
-            # 2️⃣ Prepare Preview Response (ALWAYS returned safely)
+            # 2️ Prepare Preview Response )
             # ---------------------------------------------------
             preview_response = {
                 "loan_id": loan.id,
@@ -50,7 +50,7 @@ class LoanDisbursementService:
             }
 
             # ---------------------------------------------------
-            # 3️⃣ Idempotent Handling (NO 400 errors)
+            # 3️ Idempotent Handling (NO 400 errors)
             # ---------------------------------------------------
 
             # Already Disbursed
@@ -78,7 +78,7 @@ class LoanDisbursementService:
                 raise HTTPException(400, "Invalid approved amount")
 
             # ---------------------------------------------------
-            # 4️⃣ Fetch User Profile
+            # 4️ Fetch User Profile
             # ---------------------------------------------------
             user: UserProfile = loan.user_profile
 
@@ -89,7 +89,7 @@ class LoanDisbursementService:
                 raise HTTPException(400, "Invalid payment mode")
 
             # ---------------------------------------------------
-            # 5️⃣ Select Verified Primary Method
+            # 5️ Select Verified Primary Method
             # ---------------------------------------------------
             primary_method: UserBankDetails = next(
                 (
@@ -110,12 +110,12 @@ class LoanDisbursementService:
                 )
 
             # ---------------------------------------------------
-            # 6️⃣ Get Payout Provider
+            # 6️ Get Payout Provider
             # ---------------------------------------------------
             provider = PayoutProviderFactory.get_provider("razorpay")
 
             # ---------------------------------------------------
-            # 7️⃣ Create Razorpay Contact (If Not Exists)
+            # 7️ Create Razorpay Contact (If Not Exists)
             # ---------------------------------------------------
             if not user.razorpay_contact_id:
 
@@ -132,7 +132,7 @@ class LoanDisbursementService:
                 db.flush()
 
             # ---------------------------------------------------
-            # 8️⃣ Create Fund Account (If Not Exists)
+            # 8️ Create Fund Account (If Not Exists)
             # ---------------------------------------------------
             if not primary_method.razorpay_fund_account_id:
 
@@ -160,7 +160,7 @@ class LoanDisbursementService:
                 db.flush()
 
             # ---------------------------------------------------
-            # 9️⃣ Initiate Payout
+            #  Initiate Payout
             # ---------------------------------------------------
             reference_id = f"loan_{loan.id}_{int(datetime.utcnow().timestamp())}"
 
@@ -173,7 +173,7 @@ class LoanDisbursementService:
             payout = provider.initiate_payout(payout_payload)
 
             # ---------------------------------------------------
-            # 🔟 Update Loan Status
+            #  Update Loan Status
             # ---------------------------------------------------
             loan.payout_id = payout.get("id")
             loan.payout_status = payout.get("status", "PENDING")
@@ -215,7 +215,7 @@ class LoanDisbursementService:
             )
 
     # ---------------------------------------------------
-    # 🔄 Webhook Status Update
+    #  Webhook Status Update
     # ---------------------------------------------------
     @staticmethod
     def update_payout_status(
@@ -247,3 +247,8 @@ class LoanDisbursementService:
             loan.application_status = LoanApplicationStatus.PAYOUT_FAILED
 
         db.commit()
+        
+        
+        
+        
+        

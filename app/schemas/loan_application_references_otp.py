@@ -22,7 +22,7 @@ class ReferenceOTPVerifyRequest(BaseModel):
         json_schema_extra={
             "example": {
                 "reference_id": "",
-                "otp_code": "123456"
+                "otp_code": ""
             }
         }
     )

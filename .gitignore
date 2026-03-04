@@ -10,3 +10,4 @@ app/repositories/loan_eligibility_repo.py
 app/services/loan_eligibility_service.py
 app/routes/loan_eligibility_route.py
 .env
+.test_payout.html

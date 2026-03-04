@@ -1,36 +1,93 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Loan Disbursement Test</title>
+    <meta charset="UTF-8">
+    <title>Loan Disbursement Admin</title>
     <style>
-        body { font-family: Arial; padding: 30px; }
-        button { padding: 10px 15px; margin-top: 10px; }
-        select, input { padding: 8px; margin: 5px 0; width: 250px; }
-        pre { background: #f4f4f4; padding: 15px; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            padding: 40px;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .preview-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .disburse-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        pre {
+            margin-top: 20px;
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
 
-<h2>Loan Disbursement</h2>
+<div class="container">
+    <h2>Loan Disbursement</h2>
 
-<label>Application ID:</label><br>
-<input type="number" id="applicationId" value="1"><br>
+    <label>Application ID:</label>
+    <input type="number" id="applicationId" placeholder="Enter Application ID" value="1">
 
-<label>Payment Mode:</label><br>
-<select id="paymentMode">
-    <option value="BANK">BANK</option>
-    <option value="UPI">UPI</option>
-</select><br>
+    <label>Payment Mode:</label>
+    <select id="paymentMode">
+        <option value="BANK">BANK</option>
+        <option value="UPI">UPI</option>
+    </select>
 
-<button onclick="preview()">Preview Charges</button>
-<button onclick="disburse()">Disburse Loan</button>
+    <button class="preview-btn" onclick="preview()">Preview Charges</button>
+    <button class="disburse-btn" onclick="disburse()">Disburse Loan</button>
 
-<h3>Response:</h3>
-<pre id="response"></pre>
+</div>
 
 <script>
-
-const BASE_URL  = "http://localhost:8000/admin/disbursement";
+const BASE_URL = "http://localhost:8000/admin/disbursement";
 
 async function preview() {
     const appId = document.getElementById("applicationId").value;
@@ -38,11 +95,11 @@ async function preview() {
     try {
         const res = await fetch(`${BASE_URL}/${appId}`);
         const data = await res.json();
-
         document.getElementById("response").innerText =
             JSON.stringify(data, null, 2);
-    } catch (err) {
-        document.getElementById("response").innerText = err;
+    } catch (error) {
+        document.getElementById("response").innerText =
+            "Error: " + error;
     }
 }
 
@@ -62,15 +119,14 @@ async function disburse() {
         });
 
         const data = await res.json();
-
         document.getElementById("response").innerText =
             JSON.stringify(data, null, 2);
 
-    } catch (err) {
-        document.getElementById("response").innerText = err;
+    } catch (error) {
+        document.getElementById("response").innerText =
+            "Error: " + error;
     }
 }
-
 </script>
 
 </body>
