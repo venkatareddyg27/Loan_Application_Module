@@ -1,16 +1,20 @@
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 from datetime import datetime
-from decimal import Decimal
 
 from app.db_models.loan_application import LoanApplication
-from app.db_models.user_profiles import UserProfile
+from app.db_models.loan_disbursements import LoanDisbursement
 from app.db_models.user_bank_details import UserBankDetails
 
-from app.core.enums import LoanApplicationStatus
+from app.core.enums import (
+    LoanApplicationStatus,
+    DisbursementStatusEnum,
+    PaymentModeEnum
+)
+
+from app.services.loan_calculator import calculate_loan_summary
 from app.integrations.factory import PayoutProviderFactory
-from app.integrations.exceptions import PayoutIntegrationError
 
 
 class LoanDisbursementService:
@@ -19,236 +23,143 @@ class LoanDisbursementService:
     def disburse_loan(
         db: Session,
         application_id: int,
-        payment_mode: str
-    ):
-        try:
-            # ---------------------------------------------------
-            # 1️ Lock Loan Row 
-            # ---------------------------------------------------
-            loan: LoanApplication = (
-                db.query(LoanApplication)
-                .filter(LoanApplication.id == application_id)
-                .with_for_update()
-                .first()
-            )
-
-            if not loan:
-                raise HTTPException(404, "Loan application not found")
-
-            requested_mode = payment_mode.upper() if payment_mode else None
-
-            # ---------------------------------------------------
-            # 2️ Prepare Preview Response )
-            # ---------------------------------------------------
-            preview_response = {
-                "loan_id": loan.id,
-                "amount": float(loan.approved_amount or 0),
-                "payout_id": loan.payout_id,
-                "payout_status": loan.payout_status,
-                "current_status": loan.application_status.value,
-                "payment_mode": requested_mode,
-            }
-
-            # ---------------------------------------------------
-            # 3️ Idempotent Handling (NO 400 errors)
-            # ---------------------------------------------------
-
-            # Already Disbursed
-            if loan.application_status == LoanApplicationStatus.DISBURSED:
-                return {
-                    **preview_response,
-                    "message": "Loan already disbursed."
-                }
-
-            # Payout already initiated
-            if loan.application_status == LoanApplicationStatus.PAYOUT_INITIATED:
-                return {
-                    **preview_response,
-                    "message": "Payout already initiated."
-                }
-
-            # Not approved yet
-            if loan.application_status != LoanApplicationStatus.APPROVED:
-                return {
-                    **preview_response,
-                    "message": "Loan not eligible for disbursement."
-                }
-
-            if not loan.approved_amount or loan.approved_amount <= 0:
-                raise HTTPException(400, "Invalid approved amount")
-
-            # ---------------------------------------------------
-            # 4️ Fetch User Profile
-            # ---------------------------------------------------
-            user: UserProfile = loan.user_profile
-
-            if not user:
-                raise HTTPException(400, "User profile not found")
-
-            if requested_mode not in ["BANK", "UPI"]:
-                raise HTTPException(400, "Invalid payment mode")
-
-            # ---------------------------------------------------
-            # 5️ Select Verified Primary Method
-            # ---------------------------------------------------
-            primary_method: UserBankDetails = next(
-                (
-                    m for m in user.bank_details
-                    if m.is_verified and
-                    (
-                        (requested_mode == "BANK" and m.is_primary_bank) or
-                        (requested_mode == "UPI" and m.is_primary_upi)
-                    )
-                ),
-                None
-            )
-
-            if not primary_method:
-                raise HTTPException(
-                    400,
-                    f"No verified primary {requested_mode} method selected"
-                )
-
-            # ---------------------------------------------------
-            # 6️ Get Payout Provider
-            # ---------------------------------------------------
-            provider = PayoutProviderFactory.get_provider("razorpay")
-
-            # ---------------------------------------------------
-            # 7️ Create Razorpay Contact (If Not Exists)
-            # ---------------------------------------------------
-            if not user.razorpay_contact_id:
-
-                contact_payload = {
-                    "name": user.full_name,
-                    "email": user.email,
-                    "contact": user.user.phone_number,
-                    "type": "customer"
-                }
-
-                contact = provider.create_contact(contact_payload)
-
-                user.razorpay_contact_id = contact["id"]
-                db.flush()
-
-            # ---------------------------------------------------
-            # 8️ Create Fund Account (If Not Exists)
-            # ---------------------------------------------------
-            if not primary_method.razorpay_fund_account_id:
-
-                if requested_mode == "BANK":
-                    fund_payload = {
-                        "contact_id": user.razorpay_contact_id,
-                        "account_type": "bank_account",
-                        "bank_account": {
-                            "name": primary_method.account_holder_name,
-                            "ifsc": primary_method.ifsc_code,
-                            "account_number": primary_method.account_number
-                        }
-                    }
-                else:  # UPI
-                    fund_payload = {
-                        "contact_id": user.razorpay_contact_id,
-                        "account_type": "vpa",
-                        "vpa": {
-                            "address": primary_method.upi_id
-                        }
-                    }
-
-                fund_account = provider.create_fund_account(fund_payload)
-                primary_method.razorpay_fund_account_id = fund_account["id"]
-                db.flush()
-
-            # ---------------------------------------------------
-            #  Initiate Payout
-            # ---------------------------------------------------
-            reference_id = f"loan_{loan.id}_{int(datetime.utcnow().timestamp())}"
-
-            payout_payload = provider.build_payout_payload(
-                fund_account_id=primary_method.razorpay_fund_account_id,
-                amount=Decimal(loan.approved_amount),
-                reference=reference_id
-            )
-
-            payout = provider.initiate_payout(payout_payload)
-
-            # ---------------------------------------------------
-            #  Update Loan Status
-            # ---------------------------------------------------
-            loan.payout_id = payout.get("id")
-            loan.payout_status = payout.get("status", "PENDING")
-            loan.application_status = LoanApplicationStatus.PAYOUT_INITIATED
-            loan.disbursed_at = None
-
-            db.commit()
-
-            return {
-                "loan_id": loan.id,
-                "amount": float(loan.approved_amount),
-                "payout_id": loan.payout_id,
-                "payout_status": loan.payout_status,
-                "current_status": loan.application_status.value,
-                "payment_mode": requested_mode,
-                "message": "Payout initiated successfully. Awaiting webhook confirmation."
-            }
-
-        except HTTPException:
-            db.rollback()
-            raise
-
-        except PayoutIntegrationError as e:
-            db.rollback()
-            raise HTTPException(500, str(e))
-
-        except SQLAlchemyError as db_error:
-            db.rollback()
-            raise HTTPException(
-                500,
-                f"Database error during payout: {str(db_error)}"
-            )
-
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(
-                500,
-                f"Payout failed: {str(e)}"
-            )
-
-    # ---------------------------------------------------
-    #  Webhook Status Update
-    # ---------------------------------------------------
-    @staticmethod
-    def update_payout_status(
-        db: Session,
-        payout_id: str,
-        status: str
+        payment_mode: str,
+        payment_provider: str
     ):
 
+        # ---------------------------------------------------
+        # 1️⃣ Lock loan row (prevent concurrent payouts)
+        # ---------------------------------------------------
         loan = (
             db.query(LoanApplication)
-            .filter(LoanApplication.payout_id == payout_id)
+            .filter(LoanApplication.id == application_id)
             .with_for_update()
             .first()
         )
 
         if not loan:
-            return
+            raise HTTPException(
+                status_code=404,
+                detail="Loan application not found"
+            )
 
-        if loan.payout_status == status:
-            return
+        # ---------------------------------------------------
+        # 2️⃣ Check if already disbursed
+        # ---------------------------------------------------
+        if loan.application_status == LoanApplicationStatus.DISBURSED:
+            raise HTTPException(
+                status_code=400,
+                detail="Loan already disbursed"
+            )
 
-        loan.payout_status = status
+        # ---------------------------------------------------
+        # 3️⃣ Prevent duplicate disbursement
+        # ---------------------------------------------------
+        existing_disbursement = (
+            db.query(LoanDisbursement)
+            .filter(LoanDisbursement.application_id == loan.id)
+            .first()
+        )
 
-        if status in ["processed", "success"]:
-            loan.application_status = LoanApplicationStatus.DISBURSED
-            loan.disbursed_at = datetime.utcnow()
+        if existing_disbursement:
+            raise HTTPException(
+                status_code=400,
+                detail="Loan payout already initiated"
+            )
 
-        elif status in ["failed", "reversed"]:
-            loan.application_status = LoanApplicationStatus.PAYOUT_FAILED
+        # ---------------------------------------------------
+        # 4️⃣ Validate approval
+        # ---------------------------------------------------
+        if loan.application_status != LoanApplicationStatus.APPROVED:
+            raise HTTPException(
+                status_code=400,
+                detail="Loan not approved for disbursement"
+            )
 
-        db.commit()
-        
-        
-        
-        
-        
+        # ---------------------------------------------------
+        # 5️⃣ Fetch verified bank
+        # ---------------------------------------------------
+        bank = (
+            db.query(UserBankDetails)
+            .filter(
+                UserBankDetails.user_id == loan.user_profile_id,
+                UserBankDetails.is_primary_bank == True,
+                UserBankDetails.is_verified == True
+            )
+            .first()
+        )
+
+        if not bank:
+            raise HTTPException(
+                status_code=400,
+                detail="Verified primary bank account not found"
+            )
+
+        # ---------------------------------------------------
+        # 6️⃣ Calculate deductions
+        # ---------------------------------------------------
+        summary = calculate_loan_summary(
+            float(loan.approved_amount),
+            loan.requested_tenure_months
+        )
+
+        net_amount = summary["net_disbursement_amount"]
+
+        # ---------------------------------------------------
+        # 7️⃣ Get payout provider
+        # ---------------------------------------------------
+        provider = PayoutProviderFactory.get_provider(payment_provider)
+
+        payout = provider.disburse(
+            amount=net_amount,
+            account_number=bank.account_number,
+            ifsc=bank.ifsc_code,
+            name=bank.account_holder_name,
+            reference_id=f"loan_{loan.id}"
+        )
+
+        # ---------------------------------------------------
+        # 8️⃣ Save disbursement record
+        # ---------------------------------------------------
+        disbursement = LoanDisbursement(
+            application_id=loan.id,
+            amount=net_amount,
+            payment_reference_id=payout.get("id"),
+            payment_status=DisbursementStatusEnum.INITIATED,
+            payment_mode=PaymentModeEnum(payment_mode)
+        )
+
+        db.add(disbursement)
+
+        # ---------------------------------------------------
+        # 9️⃣ Update loan status
+        # ---------------------------------------------------
+        loan.payout_id = payout.get("id")
+        loan.payout_status = payout.get("status", "processing")
+
+        loan.application_status = LoanApplicationStatus.DISBURSED
+        loan.disbursed_at = datetime.utcnow()
+
+        # ---------------------------------------------------
+        # 🔟 Commit safely
+        # ---------------------------------------------------
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=400,
+                detail="Disbursement already exists for this loan"
+            )
+
+        # ---------------------------------------------------
+        # 1️⃣1️⃣ Response
+        # ---------------------------------------------------
+        return {
+            "loan_id": loan.id,
+            "payout_id": payout.get("id"),
+            "payout_status": payout.get("status", "processing"),
+            "payment_mode": payment_mode,
+            "payment_provider":payment_provider,
+            "message": "Loan disbursement initiated successfully"
+        }

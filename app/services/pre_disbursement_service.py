@@ -2,25 +2,19 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.db_models.loan_application import LoanApplication
-from app.core.enums import LoanApplicationStatus
 from app.services.loan_calculator import calculate_loan_summary
+from app.db_models.lender import Lender
 
 
 class PreDisbursementService:
 
     @staticmethod
     def get_preview(db: Session, application_id: int):
-        """
-        Shows loan charges preview before actual disbursement.
-        Works even if already disbursed.
-        """
 
         application = db.get(LoanApplication, application_id)
 
         if not application:
             raise HTTPException(404, "Application not found")
-
-        # DO NOT block if DISBURSED anymore
 
         if not application.approved_amount:
             raise HTTPException(
@@ -42,9 +36,16 @@ class PreDisbursementService:
         except ValueError as e:
             raise HTTPException(400, str(e))
 
+        # Fetch lender
+        lender = db.query(Lender).filter(
+            Lender.id == application.lender_id
+        ).first()
+
         return {
             "application_id": application.id,
+            "lender_name": lender.company_name if lender else None,
             "current_status": application.application_status.value,
+
             "approved_amount": loan_calc["approved_amount"],
             "tenure_months": loan_calc["tenure_months"],
             "interest_rate_percent": loan_calc["interest_rate"],

@@ -1,36 +1,52 @@
 import uuid
 from decimal import Decimal
+from typing import Dict, Any
+
+from app.integrations.base_payout import BasePayoutProvider
 
 
-class RazorpayPayoutProvider:
+class RazorpayPayoutProvider(BasePayoutProvider):
 
     # ---------------------------------------------------------
-    # 👤 Fake Contact Creation
+    # Fake Contact Creation
     # ---------------------------------------------------------
-    def create_contact(self, payload: dict) -> dict:
+    def create_contact(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "id": f"demo_contact_{uuid.uuid4().hex[:8]}",
             "entity": "contact"
         }
 
     # ---------------------------------------------------------
-    # 🏦 Fake Fund Account Creation
+    # Fake Fund Account Creation
     # ---------------------------------------------------------
-    def create_fund_account(self, payload: dict) -> dict:
+    def create_fund_account(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "id": f"demo_fund_{uuid.uuid4().hex[:8]}",
             "entity": "fund_account"
         }
 
     # ---------------------------------------------------------
-    # 💰 Build Payout Payload (Still Used by Service)
+    # Fake Payout
+    # ---------------------------------------------------------
+    def initiate_payout(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+
+        return {
+            "id": f"demo_payout_{uuid.uuid4().hex[:10]}",
+            "status": "processed",
+            "reference_id": payload.get("reference_id"),
+            "amount": payload.get("amount"),
+            "currency": "INR"
+        }
+
+    # ---------------------------------------------------------
+    # Build Payout Payload
     # ---------------------------------------------------------
     def build_payout_payload(
         self,
         fund_account_id: str,
         amount: Decimal,
         reference: str
-    ) -> dict:
+    ) -> Dict[str, Any]:
 
         return {
             "fund_account_id": fund_account_id,
@@ -39,14 +55,37 @@ class RazorpayPayoutProvider:
         }
 
     # ---------------------------------------------------------
-    # 🚀 Fake Payout
+    # MAIN DISBURSE METHOD (Required by BasePayoutProvider)
     # ---------------------------------------------------------
-    def initiate_payout(self, payload: dict) -> dict:
+    def disburse(
+        self,
+        amount,
+        account_number,
+        ifsc,
+        name,
+        reference_id
+    ) -> Dict[str, Any]:
 
-        return {
-            "id": f"demo_payout_{uuid.uuid4().hex[:10]}",
-            "status": "processed",  # directly success
-            "reference_id": payload.get("reference_id"),
-            "amount": payload.get("amount"),
-            "currency": "INR"
-        }
+        # 1️⃣ Create Contact
+        contact = self.create_contact({
+            "name": name
+        })
+
+        # 2️⃣ Create Fund Account
+        fund_account = self.create_fund_account({
+            "contact_id": contact["id"],
+            "account_number": account_number,
+            "ifsc": ifsc
+        })
+
+        # 3️⃣ Build Payout Payload
+        payout_payload = self.build_payout_payload(
+            fund_account_id=fund_account["id"],
+            amount=Decimal(amount),
+            reference=reference_id
+        )
+
+        # 4️⃣ Initiate Payout
+        payout = self.initiate_payout(payout_payload)
+
+        return payout

@@ -38,25 +38,25 @@ class LoanApplicationService:
             )
 
     # =====================================================
-    # APPLY LOAN (SAFE VERSION - NO FK ERRORS)
+    # APPLY LOAN 
     # =====================================================
     @staticmethod
     def apply_loan(db: Session, data):
 
-        # 1️⃣ Validate eligibility exists
+        # 1️ Validate eligibility exists
         eligibility = LoanEligibilityService.validate_and_fetch(
             db=db,
             eligibility_id=data.eligibility_id
         )
 
-        # 2️⃣ Validate user_profile_id provided
+        # 2️ Validate user_profile_id provided
         if not data.user_profile_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="user_profile_id is required"
             )
 
-        # 3️⃣ Validate user_profile exists
+        # 3️ Validate user_profile exists
         profile = db.query(UserProfile).filter(
             UserProfile.id == data.user_profile_id
         ).first()
@@ -67,14 +67,14 @@ class LoanApplicationService:
                 detail="User profile not found"
             )
 
-        # 4️⃣ Ensure eligibility belongs to this profile
+        # 4️ Ensure eligibility belongs to this profile
         if eligibility.user_profile_id != profile.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Eligibility does not belong to this user profile"
             )
 
-        # 5️⃣ Reject if eligibility rejected
+        # 5️ Reject if eligibility rejected
         if eligibility.eligibility_status == EligibilityStatusEnum.REJECTED:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -90,7 +90,7 @@ class LoanApplicationService:
                 detail="Eligible amount not found for this eligibility record"
             )
 
-        # 6️⃣ Create Loan Application (FK Safe)
+        # 6️ Create Loan Application
         application = LoanApplication(
             user_profile_id=profile.id,
             eligibility_id=eligibility.id,
@@ -104,9 +104,9 @@ class LoanApplicationService:
         )
 
         db.add(application)
-        db.flush()  # ensures application.id generated
+        db.flush()  
 
-        # 7️⃣ Initialize Step Tracker
+        # 7️ Initialize Step Tracker
         tracker = LoanApplicationStepTracker(
             application_id=application.id,
             loan_details_completed=True,
@@ -216,7 +216,6 @@ class LoanApplicationService:
         application.application_status = enum_value(LoanApplicationStatus.SUBMITTED)
         application.is_submitted = True
         application.submitted_at = datetime.now(timezone.utc)
-
         application.interest_rate = loan_summary["interest_rate"]
         application.monthly_emi = loan_summary["emi"]
         application.processing_fee = loan_summary["processing_fee"]

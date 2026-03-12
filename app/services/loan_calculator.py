@@ -76,13 +76,6 @@ def calculate_processing_fee(principal: Decimal) -> dict:
 
 
 def calculate_loan_summary(principal, tenure_months) -> dict:
-    """
-    Uses approved_amount as principal.
-    Returns summary for:
-    - User summary screen
-    - Pre-disbursement preview
-    - Disbursement service
-    """
 
     principal = validate_loan_request(principal, tenure_months)
 

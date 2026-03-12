@@ -71,4 +71,11 @@ class DisbursementStatusEnum(str, Enum):
 class PaymentModeEnum(str, Enum):
     BANK = "BANK"
     UPI = "UPI"
+    RAZORPAY = "razorpay"
+    PAYTM = "paytm"
+    MOCK = "MOCK"
 
+class PayoutProviderEnum(str, Enum):
+    RAZORPAY = "razorpay"
+    PAYTM = "paytm"
+    MOCK = "MOCK"

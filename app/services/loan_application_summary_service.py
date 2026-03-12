@@ -80,7 +80,7 @@ class LoanApplicationSummaryService:
         principal = eligible_amount
 
         # =====================================================
-        # User Section (Correct Mobile Mapping)
+        # User Section 
         # =====================================================
         profile = application.user_profile
 

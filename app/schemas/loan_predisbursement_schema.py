@@ -1,14 +1,21 @@
 from pydantic import BaseModel, Field
 from decimal import Decimal
-from datetime import datetime
 
 
 class PreDisbursementResponseSchema(BaseModel):
 
     application_id: int
+
+    lender_name: str | None = Field(
+        None,
+        description="Name of the lender approving the loan"
+    )
+
     approved_amount: Decimal = Field(
         ...,
-        description="Approved loan amount")
+        description="Approved loan amount"
+    )
+
     tenure_months: int
     interest_rate_percent: Decimal
     emi_amount: Decimal

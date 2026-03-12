@@ -1,90 +1,54 @@
-from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi import APIRouter, Request, Header, HTTPException, Depends
 from sqlalchemy.orm import Session
 import hmac
 import hashlib
 import json
-import logging
 
-from app.core.config import settings
 from app.core.session import get_db
-from app.services.loan_disbursement_service import LoanDisbursementService
+from app.core.config import settings
+from app.db_models.loan_disbursements import LoanDisbursement
+from app.core.enums import DisbursementStatusEnum
 
-router = APIRouter()
-logger = logging.getLogger(__name__)
-
-
-@router.post("/razorpay-webhook")
-async def razorpay_webhook(
-    request: Request,
-    db: Session = Depends(get_db)
-):
+router = APIRouter(prefix="/webhooks", tags=["Webhooks"])
 
 
-    # 1️ Read Raw Body
+def verify_signature(body: bytes, signature: str):
 
-    body = await request.body()
-    signature = request.headers.get("X-Razorpay-Signature")
-
-    if not signature:
-        raise HTTPException(400, "Missing Razorpay signature header")
-
-
-    # 2️ Verify Signature
-
-    expected_signature = hmac.new(
-        settings.RAZORPAY_SECRET.encode(),  # ensure correct variable name
+    generated_signature = hmac.new(
+        settings.RAZORPAY_WEBHOOK_SECRET.encode(),
         body,
         hashlib.sha256
     ).hexdigest()
 
-    if not hmac.compare_digest(signature, expected_signature):
-        logger.warning("Invalid Razorpay webhook signature")
-        raise HTTPException(400, "Invalid signature")
+    if not hmac.compare_digest(generated_signature, signature):
+        raise HTTPException(status_code=400, detail="Invalid webhook signature")
 
 
-    # 3️ Parse JSON Safely
+@router.post("/razorpay")
+async def razorpay_webhook(
+    request: Request,
+    x_razorpay_signature: str = Header(None),
+    db: Session = Depends(get_db)
+):
 
-    try:
-        data = json.loads(body.decode())
-    except Exception:
-        raise HTTPException(400, "Invalid JSON payload")
+    body = await request.body()
 
-    event = data.get("event")
+    # verify_signature(body, x_razorpay_signature)
 
-    if not event:
-        raise HTTPException(400, "Missing event type")
+    payload = json.loads(body)
 
-    logger.info(f"Razorpay Webhook Event Received: {event}")
+    payout = payload["payload"]["payout"]["entity"]
 
+    payout_id = payout["id"]
 
-    # 4️ Handle Payout Events
+    disbursement = (
+        db.query(LoanDisbursement)
+        .filter(LoanDisbursement.payment_reference_id == payout_id)
+        .first()
+    )
 
-    if event in ["payout.processed", "payout.failed", "payout.reversed"]:
+    if disbursement:
+        disbursement.payment_status = DisbursementStatusEnum.SUCCESS
+        db.commit()
 
-        payout_entity = data.get("payload", {}).get("payout", {}).get("entity", {})
-
-        payout_id = payout_entity.get("id")
-        payout_status = payout_entity.get("status")
-
-        if not payout_id or not payout_status:
-            raise HTTPException(400, "Invalid payout payload")
-
-        #  Update Loan Based on Payout Status
-        LoanDisbursementService.update_payout_status(
-            db=db,
-            payout_id=payout_id,
-            status=payout_status
-        )
-
-        logger.info(
-            f"Payout updated: payout_id={payout_id}, status={payout_status}"
-        )
-
-    else:
-        # Ignore unrelated events safely
-        logger.info(f"Ignored Razorpay event: {event}")
-
-
-    # 5️ Always Respond 200 to Razorpay
-
-    return {"status": "success"}
+    return {"message": "Webhook processed"}
