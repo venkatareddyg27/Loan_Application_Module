@@ -8,9 +8,9 @@ import logging
 #  REDIS ENABLED
 from app.core.redis_client import redis_client
 
-#  TWILIO COMMENTED 
-# from app.core.twilio_client import twilio_client
-# from app.core.config import settings
+#  TWILIO
+from twilio.rest import Client
+from app.core.config import settings
 
 from app.db_models.loan_application_steps import LoanApplicationStepTracker
 from app.db_models.loan_application import LoanApplication
@@ -27,6 +27,14 @@ MAX_OTP_PER_IP_10_MIN = 5
 MAX_RESENDS = 3
 
 logger = logging.getLogger(__name__)
+
+
+# ==========================================
+# TWILIO CLIENT
+# ==========================================
+twilio_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+
 class ReferenceOTPService:
 
     @staticmethod
@@ -54,11 +62,11 @@ class ReferenceOTPService:
         if not reference.mobile_number:
             raise HTTPException(status_code=400, detail="Reference mobile number missing")
 
-        otp_key = ReferenceOTPService._otp_key(reference_id)
-        ip_key = ReferenceOTPService._ip_key(client_ip)
+        otp_key    = ReferenceOTPService._otp_key(reference_id)
+        ip_key     = ReferenceOTPService._ip_key(client_ip)
         resend_key = ReferenceOTPService._resend_key(reference_id)
 
-        #  Cooldown Check
+        # ✅ Cooldown Check
         if redis_client.exists(otp_key):
             ttl = redis_client.ttl(otp_key)
             if ttl > (OTP_EXPIRY_SECONDS - COOLDOWN_SECONDS):
@@ -68,7 +76,7 @@ class ReferenceOTPService:
                     detail=f"Please wait {remaining} seconds before requesting OTP again"
                 )
 
-        #  IP Rate Limit
+        # ✅ IP Rate Limit
         ip_count = redis_client.get(ip_key)
         if ip_count and int(ip_count) >= MAX_OTP_PER_IP_10_MIN:
             raise HTTPException(
@@ -79,7 +87,7 @@ class ReferenceOTPService:
         redis_client.incr(ip_key)
         redis_client.expire(ip_key, 600)
 
-        #  Resend Limit
+        # ✅ Resend Limit
         resend_count = redis_client.get(resend_key)
         if resend_count and int(resend_count) >= MAX_RESENDS:
             raise HTTPException(
@@ -90,44 +98,50 @@ class ReferenceOTPService:
         redis_client.incr(resend_key)
         redis_client.expire(resend_key, OTP_EXPIRY_SECONDS)
 
-        #  Generate OTP
-        otp_plain = str(random.randint(100000, 999999))
+        # ✅ Generate OTP
+        otp_plain  = str(random.randint(100000, 999999))
         hashed_otp = hashlib.sha256(otp_plain.encode()).hexdigest()
 
         redis_client.hset(otp_key, mapping={
-            "otp": hashed_otp,
+            "otp":      hashed_otp,
             "attempts": 0
         })
         redis_client.expire(otp_key, OTP_EXPIRY_SECONDS)
 
-        #  TWILIO DISABLED 
-
-        # try:
-        #     message = twilio_client.messages.create(
-        #         body=f"Your Loan Reference OTP is {otp_plain}. It expires in 5 minutes.",
-        #         from_=settings.TWILIO_PHONE_NUMBER,
-        #         to=reference.mobile_number
-        #     )
-        # except Exception as e:
-        #     redis_client.delete(otp_key)
-        #     raise HTTPException(
-        #         status_code=500,
-        #         detail=f"SMS sending failed: {str(e)}"
-        #     )
-
-        #  PRINT OTP IN TERMINAL (DEV ONLY)
-
-        print("\n===================================")
-        print("REFERENCE OTP (DEV MODE)")
+        # ✅ Print OTP in terminal (DEV ONLY)
+        print(f"\n========== OTP (DEV ONLY) ==========")
         print(f"Reference ID : {reference_id}")
         print(f"Mobile       : {reference.mobile_number}")
         print(f"OTP          : {otp_plain}")
-        print("===================================\n")
+        print(f"====================================\n")
 
-        logger.info(f"DEV OTP for reference {reference_id}: {otp_plain}")
+        # ✅ Fix mobile number format for Twilio (+91XXXXXXXXXX)
+        mobile = reference.mobile_number.strip().replace(" ", "")
+        if not mobile.startswith("+"):
+            mobile = "+" + mobile
+        if not mobile.startswith("+91"):
+            mobile = "+91" + mobile.lstrip("+")
+
+        # ✅ TWILIO SMS SENDING
+        try:
+            message = twilio_client.messages.create(
+                body=f"Your OTP is {otp_plain}. Valid for 5 minutes. Do not share it.",
+                from_=settings.TWILIO_PHONE_NUMBER,
+                to=mobile
+            )
+
+            logger.info(f"OTP sent via Twilio for reference {reference_id} to {mobile} | SID: {message.sid}")
+
+        except Exception as e:
+            redis_client.delete(otp_key)
+            logger.error(f"Twilio error for reference {reference_id}: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"SMS sending failed: {str(e)}"
+            )
 
         return {
-            "message": "OTP generated successfully"
+            "message": "OTP sent successfully"
         }
 
     # ==============================
@@ -188,7 +202,7 @@ class ReferenceOTPService:
                 detail="Invalid OTP"
             )
 
-        #  SUCCESS
+        # ✅ SUCCESS
         redis_client.delete(otp_key)
 
         reference = LoanApplicationReferenceRepository.get_by_id(
@@ -208,12 +222,13 @@ class ReferenceOTPService:
 
         return {
             "reference_id": payload.reference_id,
-            "verified": True,
-            "verified_at": datetime.now(timezone.utc)
+            "verified":     True,
+            "verified_at":  datetime.now(timezone.utc)
         }
 
+    # ==============================
     # UPDATE APPLICATION STEP
-
+    # ==============================
     @staticmethod
     def update_application_step_if_references_verified(
         db: Session,
@@ -237,17 +252,11 @@ class ReferenceOTPService:
                 return
 
             tracker.references_completed = True
-            tracker.last_completed_step = enum_value(
-                LoanApplicationStep.REFERENCES
-            )
-            tracker.current_step = enum_value(
-                LoanApplicationStep.DECLARATION
-            )
+            tracker.last_completed_step  = enum_value(LoanApplicationStep.REFERENCES)
+            tracker.current_step         = enum_value(LoanApplicationStep.DECLARATION)
 
             application = db.get(LoanApplication, application_id)
             if application:
-                application.current_step = enum_value(
-                    LoanApplicationStep.DECLARATION
-                )
+                application.current_step = enum_value(LoanApplicationStep.DECLARATION)
 
             db.commit()

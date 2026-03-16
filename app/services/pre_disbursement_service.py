@@ -38,7 +38,7 @@ class PreDisbursementService:
 
         # Fetch lender
         lender = db.query(Lender).filter(
-            Lender.id == application.lender_id
+            Lender.id == application.lender_id 
         ).first()
 
         return {
